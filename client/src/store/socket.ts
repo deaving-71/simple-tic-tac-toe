@@ -15,6 +15,39 @@ type Socket = {
   setGameroom: (gameroom: Gameroom) => void;
 };
 
+const me: User = {
+  id: "zdg",
+  username: "oy",
+};
+
+const placeholder: Gameroom = {
+  id: "slf,a",
+  player_1: {
+    id: "zdg",
+    username: "oy",
+    letter: "o",
+    turn: true,
+  },
+  player_2: {
+    id: "safafaf",
+    username: "ayaya",
+    letter: "x",
+    turn: false,
+  },
+  board: {
+    0: "none",
+    1: "none",
+    2: "none",
+    3: "none",
+    4: "none",
+    5: "none",
+    6: "none",
+    7: "none",
+    8: "none",
+  },
+  gameState: "o",
+};
+
 const useSocket = create<Socket>((set) => ({
   user: null,
   socket: null,

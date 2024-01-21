@@ -18,7 +18,10 @@ export type Gameroom = {
   player_1: Player;
   player_2: Player;
   board: Board;
+  gameState: Gamestate;
 };
+
+export type Gamestate = "ongoing" | "x" | "o" | "draw";
 
 export type Play = {
   roomId: string;

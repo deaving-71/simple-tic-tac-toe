@@ -1,7 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 import { Store } from "./store";
 import { v4 as uuidv4 } from "uuid";
-import { Gameroom, Message, Play, User } from "../../types";
+import { Message, Play, User } from "../../types";
 
 const wss = new WebSocketServer({ port: 5000 });
 const store = new Store();
@@ -129,8 +129,20 @@ wss.on("connection", (ws) => {
             },
           };
 
-          store.updateGame(roomId, updatedGame);
-          toRoom(roomId, "player-move", updatedGame);
+          const updatedGameState = {
+            ...updatedGame,
+            gameState: store.checkGameState(updatedGame),
+          };
+          if (updatedGameState.gameState === "ongoing") {
+            toRoom(roomId, "player-move", updatedGameState);
+            store.updateGame(roomId, updatedGameState);
+          } else {
+            console.log(
+              `game: ${updatedGameState.id} ended with ${updatedGameState.gameState}`
+            );
+            toRoom(roomId, "player-move", updatedGameState);
+            store.endGame(roomId);
+          }
         }
         break;
 
@@ -138,12 +150,12 @@ wss.on("connection", (ws) => {
         break;
     }
 
-    console.log("##############");
+    console.log("##########################################");
     console.log(data);
     console.log("sockets connected:", store.sockets);
     console.log("queue: ", store.queue);
 
-    console.log("##############");
+    console.log("##########################################");
   });
 
   ws.on("close", () => {

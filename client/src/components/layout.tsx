@@ -42,6 +42,8 @@ export function Layout({ children }: LayoutProps) {
         case "player-move":
           {
             const updatedGameroom = payload as Gameroom;
+            console.log("updatedGameroom: ", updatedGameroom);
+
             setGameroom(updatedGameroom);
           }
           break;

@@ -1,9 +1,20 @@
 import { Gameroom, Player, User } from "../../types";
 import { v4 as uuidv4 } from "uuid";
 
+const winningMoves = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
+
 class Store {
   sockets: Record<string, string> = {};
-  queue: string[] = []; //* array of usernames
+  queue: string[] = []; //* array of user ids
   rooms: Gameroom[] = [];
 
   addSocket(username: string, id: string) {
@@ -72,6 +83,7 @@ class Store {
         7: "none",
         8: "none",
       },
+      gameState: "ongoing",
     };
 
     this.rooms.push(gameroom);
@@ -80,13 +92,76 @@ class Store {
   }
 
   updateGame(roomId: string, updates: Gameroom) {
-    // TODO: check for either side won
     this.rooms = this.rooms.map((room) => {
       if (room.id === roomId) return updates;
 
       return room;
     });
   }
+
+  checkGameState(gameroom: Gameroom): "draw" | "ongoing" | "x" | "o" {
+    const isBoardFilled = this.checkForDraw(gameroom);
+    const winner = this.checkForWins(gameroom);
+
+    if (isBoardFilled && !winner) return "draw";
+    else if (!winner) return "ongoing";
+
+    return winner;
+  }
+
+  checkForDraw(gameroom: Gameroom) {
+    const board = Object.entries(gameroom.board);
+    return board.every(([_, v]) => v !== "none");
+  }
+
+  checkForWins(gameroom: Gameroom) {
+    let winner: "x" | "o" | null = null;
+    const board = Object.entries(gameroom.board);
+    const xPlays = board
+      .map(([k, v]) => {
+        if (v === "x") return k;
+      })
+      .filter(Boolean)
+      .map((v) => Number(v));
+
+    const oPlays = board
+      .map(([k, v]) => {
+        if (v === "o") return k;
+      })
+      .filter(Boolean)
+      .map((v) => Number(v));
+
+    winningMovesLabel: for (const winningMove of winningMoves) {
+      let matchingMoves = 0;
+      for (const boardIdx of xPlays) {
+        if (!winningMove.includes(boardIdx)) {
+          break;
+        }
+        matchingMoves++;
+      }
+
+      if (matchingMoves === 3) {
+        winner = "x";
+        break winningMovesLabel;
+      }
+
+      matchingMoves = 0;
+
+      for (const boardIdx of oPlays) {
+        if (!winningMove.includes(boardIdx)) {
+          break;
+        }
+        matchingMoves++;
+      }
+
+      if (matchingMoves === 3) {
+        winner = "o";
+      }
+    }
+
+    return winner;
+  }
+
   endGame(roomId: string) {
     this.rooms = this.rooms.filter((v) => v.id !== roomId);
     return this;

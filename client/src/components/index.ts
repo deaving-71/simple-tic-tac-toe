@@ -4,3 +4,4 @@ export * from "./start-menu";
 export * from "./game";
 export * from "./layout";
 export * from "./loading";
+export * from "./game-state";
