@@ -170,10 +170,3 @@ wss.on("close", function close() {
 wss.on("error", (error) => {
   console.error(`WebSocket server error: ${error}`);
 });
-
-// ws.on("connect", (username: string) => {
-//   const id = uuidv4();
-//   store.addSocket(username, id);
-
-//   console.log(`player: ${username} joined with id: ${id}`);
-// });
